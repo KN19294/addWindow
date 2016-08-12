@@ -43,7 +43,7 @@ class Main extends PluginBase implements Listener{
 
   public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
     if($sender instanceof Player){
-      switch($cmd->getName()){
+      switch(strtolower($cmd->getName())){
 	case "addwindow":
           $sender->sendMessage("Added chest window!");
           $this->addChestWindow($sender);
