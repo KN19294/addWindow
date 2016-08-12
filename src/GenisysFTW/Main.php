@@ -5,7 +5,6 @@ use pocketmine\block\Block;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
-use pocketmine\inventory\ChestInventory;
 use pocketmine\item\Item;
 use pocketmine\level\Position;
 use pocketmine\level\Level;
@@ -19,7 +18,6 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\plugin\PluginBase;
 use pocketmine\tile\Chest;
 use pocketmine\tile\Tile;
-use pocketmine\utils\TextFormat;
 
 class Main extends PluginBase implements Listener{
 
