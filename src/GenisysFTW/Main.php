@@ -28,12 +28,12 @@ class Main extends PluginBase implements Listener{
   public function addChestWindow($p){
     $x = $p->getX();$y = $p->getY();$z = $p->getZ();$level = $p->getLevel();
     $chest = Block::get(54);
-    $level->setBlock(new Vector3($x,$y-3,$z), $chest);
+    $level->setBlock(new Vector3($x,$y-1,$z), $chest);
     $nbt = new CompoundTag("", [
       new ListTag("Items", []),
       new StringTag("id", Tile::CHEST),
       new IntTag("x", $x),
-      new IntTag("y", $y-3),
+      new IntTag("y", $y-1),
       new IntTag("z", $z)
     ]);
     $nbt->Items->setTagType(NBT::TAG_Compound);
