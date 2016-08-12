@@ -45,7 +45,7 @@ class Main extends PluginBase implements Listener{
     if($sender instanceof Player){
       switch($cmd->getName()){
 	case "addwindow":
-          $this->addWindow($sender);
+          $this->addChestWindow($sender);
         break;
       }
     }
