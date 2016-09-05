@@ -25,20 +25,24 @@ class Main extends PluginBase implements Listener{
     $this->getServer()->getPluginManager()->registerEvents($this, $this);
   }
 
-  public function addChestWindow($p){
-    $x = $p->getX();$y = $p->getY();$z = $p->getZ();$level = $p->getLevel();
-    $chest = Block::get(54);
-    $level->setBlock(new Vector3($x,$y-1,$z), $chest);
+/*
+*
+* Thanks @Muqsit and @dktapps.
+*
+*/
+  public function sendChestInventory(Player $player){
+    $block = Block::get(54);
+    $player->getLevel()->setBlock(new Vector3($player->x, $player->y - 2, $player->z), $block, true, true);
     $nbt = new CompoundTag("", [
       new ListTag("Items", []),
       new StringTag("id", Tile::CHEST),
-      new IntTag("x", $x),
-      new IntTag("y", $y-1),
-      new IntTag("z", $z)
+      new IntTag("x", floor($player->x)),
+      new IntTag("y", floor($player->y) - 2),
+      new IntTag("z", floor($player->z))
     ]);
     $nbt->Items->setTagType(NBT::TAG_Compound);
-    $tile = Tile::createTile("Chest", $p->getLevel()->getChunk($p->getX() >> 4, $p->getZ() >> 4), $nbt);
-    $this->getServer()->getScheduler()->scheduleDelayedTask(new addWindow($this, $p, $tile->getInventory()), 10);
+    $tile = Tile::createTile("Chest", $player->getLevel()->getChunk($player->getX() >> 4, $player->getZ() >> 4), $nbt);
+    $player->addWindow($tile->getInventory());
   }
 
   public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
@@ -46,7 +50,7 @@ class Main extends PluginBase implements Listener{
       switch(strtolower($cmd->getName())){
 	case "addwindow":
           $sender->sendMessage("Added chest window!");
-          $this->addChestWindow($sender);
+          $this->sendChestInventory($sender);
         break;
       }
     }
