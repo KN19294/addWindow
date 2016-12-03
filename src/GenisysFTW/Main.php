@@ -92,7 +92,7 @@ class Main extends PluginBase implements Listener{
 		$player->addWindow($tile->getInventory());
 	}
 	
-	public static function onTrans(InventoryTransactionEvent $ev){
+	public static function onTrans(\pocketmine\event\inventory\InventoryTransactionEvent $ev){
 		$chest = null;
     		$player = null;
     		$trans = $ev->getTransaction()->getTransactions();
@@ -140,7 +140,7 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
-	public function onInvClose(InventoryCloseEvent $event){
+	public function onInvClose(\pocketmine\event\inventory\InventoryCloseEvent $event){
 		$inventory = $event->getInventory();
 		if ($inventory instanceof ChestInventory) {
 			$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
@@ -155,7 +155,7 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
-	public static function onTransaction(InventoryTransactionEvent $event) {
+	public static function onTransaction(\pocketmine\event\inventory\InventoryTransactionEvent $event) {
 		$trans = $event->getTransaction()->getTransactions();
         	$inv = $event->getTransaction()->getInventories();
         	$player = null;
