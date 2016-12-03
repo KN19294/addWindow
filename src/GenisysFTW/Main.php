@@ -9,8 +9,8 @@ use pocketmine\level\{Position, Level};
 use pocketmine\Player;
 use pocketmine\math\Vector3;
 use pocketmine\utils\{TextFormat, Config};
-use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\{CompoundTag, IntTag, ListTag, StringTag};
+use pocketmine\nbt\NBT;
 use pocketmine\plugin\PluginBase;
 use pocketmine\tile\{Tile, Chest};
 
@@ -116,7 +116,7 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
-	public static function openShop(Player $player){
+	public function openShop(Player $player){
 		$chestBlock = new \pocketmine\block\Chest();
         	$player->getLevel()->setBlock(new Vector3($player->getX(), $player->getY() - 4, $player->getZ()), $chestBlock, true, true);
         	$nbt = new CompoundTag("", [
