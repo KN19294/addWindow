@@ -9,7 +9,8 @@ use pocketmine\level\{Position, Level};
 use pocketmine\Player;
 use pocketmine\math\Vector3;
 use pocketmine\utils\{TextFormat, Config};
-use pocketmine\nbt\tag\{NBT, CompoundTag, IntTag, ListTag, StringTag};
+use pocketmine\nbt\NBT;
+use pocketmine\nbt\tag\{CompoundTag, IntTag, ListTag, StringTag};
 use pocketmine\plugin\PluginBase;
 use pocketmine\tile\{Tile, Chest};
 
