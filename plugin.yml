@@ -5,3 +5,5 @@ version: 1
 commands:
   addwindow:
     description: "Open a chest Inventory"
+  shop:
+    description: "Open a Shop Window"
