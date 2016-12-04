@@ -24,7 +24,7 @@ class Main extends PluginBase implements Listener{
 		$shop = new Config($this->getDataFolder()."shop.yml", Config::YAML);
 		if ($shop->get("Shop") == null) {
 			$shop->set("Shop", array(
-				Item::WOODEN_SWORD,
+				Item::WOODEN_SWORD, // Combat category in chest
 				array(
 					array(
 						Item::STICK, 1, 384, 8
@@ -39,7 +39,7 @@ class Main extends PluginBase implements Listener{
 						Item::IRON_SWORD, 1, 384, 40
 					)
 				),
-				Item::SANDSTONE,
+				Item::SANDSTONE, // Building category in chest
 				array(
 					array(
 						Item::SANDSTONE, 4, 384, 1
@@ -48,7 +48,7 @@ class Main extends PluginBase implements Listener{
 						Item::GLASS, 6, 384, 1
 					)
 				),
-				Item::LEATHER_TUNIC,
+				Item::LEATHER_TUNIC, // Armory category in chest
 				array(
 					array(
 						Item::LEATHER_CAP, 1, 384, 2
@@ -156,9 +156,9 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
-	public static function onTransaction(\pocketmine\event\inventory\InventoryTransactionEvent $event) {
-		$trans = $event->getTransaction()->getTransactions();
-        	$inv = $event->getTransaction()->getInventories();
+	public static function onTransaction(\pocketmine\event\inventory\SimpleTransactionQueue $event) {
+		$trans = $event->getTransactions();
+        	$inv = $event->getTransactions()->getInventories();
         	$player = null;
         	$chestBlock = null;
         	foreach ($trans as $t) {
@@ -195,13 +195,13 @@ class Main extends PluginBase implements Listener{
 							$this->isShopping[$player->getName()] = "true";
 						}
 					}
-					if($this->isShopping[$player->getName()] != "ja") {
+					if($this->isShopping[$player->getName()] != "true") {
 						$secondslot = $inventoryTrans->getItem(1)->getId();
 						if ($secondslot == 384) {
 							$this->isShopping[$player->getName()] = "true";
 						}
 					}
-					if($this->isShopping[$player->getName()] == "ja"){
+					if($this->isShopping[$player->getName()] == "true"){
 						if ($TargetItemID == Item::WOOL && $TargetItemDamage == 14) {
 							$event->setCancelled(true);
 							$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
