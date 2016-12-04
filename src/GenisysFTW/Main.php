@@ -112,7 +112,6 @@ class Main extends PluginBase implements Listener{
 			$trans = $t;
 			$item = $ev->getTargetItem();
 			$ev->getPlayer->sendPopup(TextFormat::AQUA ."You selected ".$item->getName());
-			}
 		}
 	}
 	
