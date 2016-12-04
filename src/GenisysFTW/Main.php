@@ -24,7 +24,7 @@ class Main extends PluginBase implements Listener{
 		$shop = new Config($this->getDataFolder()."shop.yml", Config::YAML);
 		if ($shop->get("Shop") == null) {
 			$shop->set("Shop", array(
-				"CustomName" => "Shop UI",
+				"CustomName" => "Basic Shop UI",
 				Item::WOODEN_SWORD, // Combat category in chest
 				array(
 					array(
@@ -154,7 +154,7 @@ class Main extends PluginBase implements Listener{
             		$second = $all[2];
             		if (($inventory->getItem(0)->getId() == $first && $inventory->getItem(1)->getId() == $second) || $inventory->getItem(1)->getId() == 384) {
 				$event->getPlayer()->getLevel()->setBlock(new Vector3($realChest->getX(), $realChest->getY(), $realChest->getZ()), Block::get(Block::AIR));
-				$this->isShopping[$event->getPlayer()->getName()] = "false";
+				$this->isShopping[$event->getPlayer()->getName()] = Variable::FALSE;
 			}
 		}
 	}
@@ -185,7 +185,7 @@ class Main extends PluginBase implements Listener{
                     		$TargetItemDamage = $transaction->getTargetItem()->getDamage();
                     		$TargetItem = $transaction->getTargetItem();
                     		$inventoryTrans = $chestTile->getInventory();
-                    		if($this->isShopping[$player->getName()] != "true") {
+                    		if($this->isShopping[$player->getName()] != Variable::TRUE) {
 					$zahl = 0;
 					for ($i = 0; $i < count($all); $i += 2) {
 						if ($TargetItemID == $all[$i]) {
@@ -193,16 +193,16 @@ class Main extends PluginBase implements Listener{
 						}
 					}
 					if($zahl == count($all)){
-						$this->isShopping[$player->getName()] = "true";
+						$this->isShopping[$player->getName()] = Variable::TRUE;
 					}
 				}
-				if($this->isShopping[$player->getName()] != "true") {
+				if($this->isShopping[$player->getName()] != Variable::TRUE) {
 					$secondslot = $inventoryTrans->getItem(1)->getId();
 					if ($secondslot == 384) {
-						$this->isShopping[$player->getName()] = "true";
+						$this->isShopping[$player->getName()] = Variable::TRUE;
 					}
 				}
-				if($this->isShopping[$player->getName()] == "true"){
+				if($this->isShopping[$player->getName()] == Variable::TRUE){
 					if ($TargetItemID == Item::WOOL && $TargetItemDamage == 14) {
 						$event->setCancelled(true);
 						$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
