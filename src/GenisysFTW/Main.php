@@ -151,7 +151,7 @@ class Main extends PluginBase implements Listener{
             		$second = $all[2];
             		if (($inventory->getItem(0)->getId() == $first && $inventory->getItem(1)->getId() == $second) || $inventory->getItem(1)->getId() == 384) {
 				$event->getPlayer()->getLevel()->setBlock(new Vector3($realChest->getX(), $realChest->getY(), $realChest->getZ()), Block::get(Block::AIR));
-				$this->isShopping[$event->getPlayer()->getName()] = "nein";
+				$this->isShopping[$event->getPlayer()->getName()] = "false";
 			}
 		}
 	}
@@ -184,7 +184,7 @@ class Main extends PluginBase implements Listener{
                     			$TargetItemDamage = $transaction->getTargetItem()->getDamage();
                     			$TargetItem = $transaction->getTargetItem();
                     			$inventoryTrans = $chestTile->getInventory();
-                    			if($this->isShopping[$player->getName()] != "ja") {
+                    			if($this->isShopping[$player->getName()] != "true") {
 						$zahl = 0;
 						for ($i = 0; $i < count($all); $i += 2) {
 							if ($TargetItemID == $all[$i]) {
@@ -192,13 +192,13 @@ class Main extends PluginBase implements Listener{
 							}
 						}
 						if($zahl == count($all)){
-							$this->isShopping[$player->getName()] = "ja";
+							$this->isShopping[$player->getName()] = "true";
 						}
 					}
 					if($this->isShopping[$player->getName()] != "ja") {
 						$secondslot = $inventoryTrans->getItem(1)->getId();
 						if ($secondslot == 384) {
-							$this->isShopping[$player->getName()] = "ja";
+							$this->isShopping[$player->getName()] = "true";
 						}
 					}
 					if($this->isShopping[$player->getName()] == "ja"){
