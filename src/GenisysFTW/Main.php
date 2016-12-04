@@ -93,11 +93,11 @@ class Main extends PluginBase implements Listener{
 		$player->addWindow($tile->getInventory());
 	}
 	
-	public static function onTrans(\pocketmine\event\inventory\InventoryTransactionEvent $ev){
+	public static function onTrans(\pocketmine\inventory\SimpleTransactionQueue $ev){
 		$chest = null;
     		$player = null;
-    		$trans = $ev->getTransaction()->getTransactions();
-    		$int = $ev->getTransatctions()->getInventorys();
+    		$trans = $ev->getTransactions();
+    		$int = $ev->getTransatctions()->getInventories();
      		foreach($trans as $t){
 			foreach($int as $inst){
 				$inst = $inst->getHolder();
@@ -110,18 +110,20 @@ class Main extends PluginBase implements Listener{
 			}
 			$trans = $t;
 			$item = $ev->getTargetItem();
-			if($item->getId() == pocketmine\item\Item::TNT){
-				$player->sendPopup("You selected ".$item->getName());
+			$ev->getPlayer->sendPopup(TextFormat::AQUA ."You selected ".$item->getName());
 			}
 		}
 	}
 	
 	public function openShop(Player $player){
 		$chestBlock = new \pocketmine\block\Chest();
+		$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+                $all = $config->get("Shop");
         	$player->getLevel()->setBlock(new Vector3($player->getX(), $player->getY() - 4, $player->getZ()), $chestBlock, true, true);
         	$nbt = new CompoundTag("", [
 			new ListTag("Items", []),
             		new StringTag("id", Tile::CHEST),
+			new StringTag("CustomName", $config->get("CustomName")),
             		new IntTag("x", $player->getX()),
             		new IntTag("y", $player->getY() - 4),
             		new IntTag("z", $player->getZ())
@@ -156,7 +158,7 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
-	public static function onTransaction(\pocketmine\event\inventory\SimpleTransactionQueue $event) {
+	public static function onTransaction(\pocketmine\inventory\SimpleTransactionQueue $event) {
 		$trans = $event->getTransactions();
         	$inv = $event->getTransactions()->getInventories();
         	$player = null;
@@ -174,88 +176,85 @@ class Main extends PluginBase implements Listener{
 			}
 		}
 		if ($player != null && $chestBlock != null && isset($transaction)) {
-			if($this->inArena($player)) {
-				$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
-                		$all = $config->get("Shop");
-                		$arena = $this->getArena($player);
-                		$chestTile = $player->getLevel()->getTile($chestBlock);
-                		if ($chestTile instanceof Chest) {
-					$TargetItemID = $transaction->getTargetItem()->getId();
-                    			$TargetItemDamage = $transaction->getTargetItem()->getDamage();
-                    			$TargetItem = $transaction->getTargetItem();
-                    			$inventoryTrans = $chestTile->getInventory();
-                    			if($this->isShopping[$player->getName()] != "true") {
-						$zahl = 0;
+			$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+                	$all = $config->get("Shop");
+                	$chestTile = $player->getLevel()->getTile($chestBlock);
+                	if ($chestTile instanceof Chest) {
+				$TargetItemID = $transaction->getTargetItem()->getId();
+                    		$TargetItemDamage = $transaction->getTargetItem()->getDamage();
+                    		$TargetItem = $transaction->getTargetItem();
+                    		$inventoryTrans = $chestTile->getInventory();
+                    		if($this->isShopping[$player->getName()] != "true") {
+					$zahl = 0;
+					for ($i = 0; $i < count($all); $i += 2) {
+						if ($TargetItemID == $all[$i]) {
+							$zahl++;
+						}
+					}
+					if($zahl == count($all)){
+						$this->isShopping[$player->getName()] = "true";
+					}
+				}
+				if($this->isShopping[$player->getName()] != "true") {
+					$secondslot = $inventoryTrans->getItem(1)->getId();
+					if ($secondslot == 384) {
+						$this->isShopping[$player->getName()] = "true";
+					}
+				}
+				if($this->isShopping[$player->getName()] == "true"){
+					if ($TargetItemID == Item::WOOL && $TargetItemDamage == 14) {
+						$event->setCancelled(true);
+						$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+                            			$all = $config->get("Shop");
+                            			$chestTile->getInventory()->clearAll();
+                            			for ($i = 0; $i < count($all); $i = $i + 2) {
+                                			$slot = $i / 2;
+                                			$chestTile->getInventory()->setItem($slot, Item::get($all[$i], 0, 1));
+						}
+					}
+					$TransactionSlot = 0;
+					for ($i = 0; $i < $inventoryTrans->getSize(); $i++) {
+						if ($inventoryTrans->getItem($i)->getId() == $TargetItemID) {
+							$TransactionSlot = $i;
+							break;
+						}
+					}
+					$secondslot = $inventoryTrans->getItem(1)->getId();
+					if ($TransactionSlot % 2 != 0 && $secondslot == 384) {
+						$event->setCancelled(true);
+					}
+					if ($TargetItemID == 384) {
+						$event->setCancelled(true);
+					}
+					if ($TransactionSlot % 2 == 0 && ($secondslot == 384)) {
+						$Kosten = $inventoryTrans->getItem($TransactionSlot + 1)->getCount();
+						$yourmoney = $player->getExpLevel();
+						if ($yourmoney >= $Kosten) {
+							$money = $yourmoney - $Kosten;
+							$player->setExpLevel($money);
+							$player->getInventory()->addItem(Item::get($inventoryTrans->getItem($TransactionSlot)->getId(), $inventoryTrans->getItem($TransactionSlot)->getDamage(), $inventoryTrans->getItem($TransactionSlot)->getCount()));
+						}
+						$event->setCancelled(true);
+					}
+					if ($secondslot != 384) {
+						$event->setCancelled(true);
+						$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+						$all = $config->get("Shop");
 						for ($i = 0; $i < count($all); $i += 2) {
 							if ($TargetItemID == $all[$i]) {
-								$zahl++;
-							}
-						}
-						if($zahl == count($all)){
-							$this->isShopping[$player->getName()] = "true";
-						}
-					}
-					if($this->isShopping[$player->getName()] != "true") {
-						$secondslot = $inventoryTrans->getItem(1)->getId();
-						if ($secondslot == 384) {
-							$this->isShopping[$player->getName()] = "true";
-						}
-					}
-					if($this->isShopping[$player->getName()] == "true"){
-						if ($TargetItemID == Item::WOOL && $TargetItemDamage == 14) {
-							$event->setCancelled(true);
-							$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
-                            				$all = $config->get("Shop");
-                            				$chestTile->getInventory()->clearAll();
-                            				for ($i = 0; $i < count($all); $i = $i + 2) {
-                                				$slot = $i / 2;
-                                				$chestTile->getInventory()->setItem($slot, Item::get($all[$i], 0, 1));
-							}
-						}
-						$TransactionSlot = 0;
-						for ($i = 0; $i < $inventoryTrans->getSize(); $i++) {
-							if ($inventoryTrans->getItem($i)->getId() == $TargetItemID) {
-								$TransactionSlot = $i;
+								$chestTile->getInventory()->clearAll();
+                                    				$suball = $all[$i + 1];
+                                    				$slot = 0;
+                                    				for ($j = 0; $j < count($suball); $j++) {
+									$chestTile->getInventory()->setItem($slot, Item::get($suball[$j][0], 0, $suball[$j][1]));
+                                        				$slot++;
+                                        				$chestTile->getInventory()->setItem($slot, Item::get($suball[$j][2], 0, $suball[$j][3]));
+                                        				$slot++;
+								}
 								break;
 							}
 						}
-						$secondslot = $inventoryTrans->getItem(1)->getId();
-						if ($TransactionSlot % 2 != 0 && $secondslot == 384) {
-							$event->setCancelled(true);
-						}
-						if ($TargetItemID == 384) {
-							$event->setCancelled(true);
-						}
-						if ($TransactionSlot % 2 == 0 && ($secondslot == 384)) {
-							$Kosten = $inventoryTrans->getItem($TransactionSlot + 1)->getCount();
-							$yourmoney = $player->getExpLevel();
-							if ($yourmoney >= $Kosten) {
-								$money = $yourmoney - $Kosten;
-								$player->setExpLevel($money);
-								$player->getInventory()->addItem(Item::get($inventoryTrans->getItem($TransactionSlot)->getId(), $inventoryTrans->getItem($TransactionSlot)->getDamage(), $inventoryTrans->getItem($TransactionSlot)->getCount()));
-							}
-							$event->setCancelled(true);
-						}
-						if ($secondslot != 384) {
-							$event->setCancelled(true);
-							$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
-							$all = $config->get("Shop");
-							for ($i = 0; $i < count($all); $i += 2) {
-								if ($TargetItemID == $all[$i]) {
-									$chestTile->getInventory()->clearAll();
-                                    					$suball = $all[$i + 1];
-                                    					$slot = 0;
-                                    					for ($j = 0; $j < count($suball); $j++) {
-										$chestTile->getInventory()->setItem($slot, Item::get($suball[$j][0], 0, $suball[$j][1]));
-                                        					$slot++;
-                                        					$chestTile->getInventory()->setItem($slot, Item::get($suball[$j][2], 0, $suball[$j][3]));
-                                        					$slot++;
-									}
-									break;
-								}
-							}
-							$chestTile->getInventory()->setItem($chestTile->getInventory()->getSize() - 1, Item::get(Item::WOOL, 14, 1));
-						}
+						$chestTile->getInventory()->setItem($chestTile->getInventory()->getSize() - 1, Item::get(Item::WOOL, 14, 1));
 					}
 				}
 			}
@@ -266,11 +265,11 @@ class Main extends PluginBase implements Listener{
 		if($sender instanceof Player){
 			switch(strtolower($cmd->getName())){
 				case "addwindow":
-					$sender->sendMessage("Added chest window!");
+					$sender->sendMessage(TextFormat::YELLOW ."This is a test Chest window!");
 					$this->sendChestInventory($sender);
 					break;
 				case "shop":
-					$sender->sendMessage("Opening Shop Window");
+					$sender->sendMessage(TextFormat::GREEN ."You have launched the Shop UI");
 					$this->openShop($sender);
 					break;
 			}
