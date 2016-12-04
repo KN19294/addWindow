@@ -24,6 +24,7 @@ class Main extends PluginBase implements Listener{
 		$shop = new Config($this->getDataFolder()."shop.yml", Config::YAML);
 		if ($shop->get("Shop") == null) {
 			$shop->set("Shop", array(
+				"CustomName" => "Shop UI",
 				Item::WOODEN_SWORD, // Combat category in chest
 				array(
 					array(
@@ -123,7 +124,7 @@ class Main extends PluginBase implements Listener{
         	$nbt = new CompoundTag("", [
 			new ListTag("Items", []),
             		new StringTag("id", Tile::CHEST),
-			new StringTag("CustomName", $config->get("CustomName")),
+			new StringTag("CustomName", $all->get("CustomName")),
             		new IntTag("x", $player->getX()),
             		new IntTag("y", $player->getY() - 4),
             		new IntTag("z", $player->getZ())
