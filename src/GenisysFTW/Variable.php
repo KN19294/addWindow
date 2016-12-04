@@ -1,6 +1,8 @@
 <?php
-interface Variable{
+namespace GenisysFTW;
 
-const TRUE = "true";
-const FALSE = "false";
+interface Variable{
+  
+  const TRUE = "true";
+  const FALSE = "false";
 }
