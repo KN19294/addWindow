@@ -17,6 +17,8 @@ use pocketmine\tile\{Tile, Chest};
 class Main extends PluginBase implements Listener{
 	
 	public $isShopping = array();
+	/** @var SimpleTransactionQueue */
+	protected $transactionQueue = null;
 	
 	public function onEnable(){
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -77,6 +79,15 @@ class Main extends PluginBase implements Listener{
 	* Thanks @Muqsit and @dktapps.
 	*
 	*/
+	
+	public function getTransactionQueue(Player $player){
+		//Is creating the transaction queue ondemand a good idea? I think only if it's destroyed afterwards. hmm...
+		if($player->transactionQueue === null){
+			//Potential for crashes here if a plugin attempts to use this, say for an NPC plugin or something...
+			$player->transactionQueue = new SimpleTransactionQueue($player);
+		}
+		return $player->transactionQueue;
+	}
 	
 	public static function sendChestInventory(Player $player){
 		$block = Block::get(54);
