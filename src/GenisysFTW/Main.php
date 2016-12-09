@@ -21,7 +21,7 @@ class Main extends PluginBase implements Listener{
 	public function onEnable(){
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		@mkdir($this->getDataFolder());
-		$shop = new Config($this->getDataFolder()."shop.yml", Config::YAML);
+		$shop = new Config($this->getDataFolder(). Variable::SHOP, Config::YAML);
 		if ($shop->get("Shop") == null) {
 			$shop->set("Shop", array(
 				Item::WOODEN_SWORD, // Combat category in chest
@@ -116,7 +116,7 @@ class Main extends PluginBase implements Listener{
 	
 	public function openShop(Player $player){
 		$chestBlock = new \pocketmine\block\Chest();
-		$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+		$config = new Config($this->getDataFolder() . Variable::SHOP, Config::YAML);
                 $all = $config->get("Shop");
         	$player->getLevel()->setBlock(new Vector3($player->getX(), $player->getY() - 4, $player->getZ()), $chestBlock, true, true);
         	$nbt = new CompoundTag("", [
@@ -129,7 +129,7 @@ class Main extends PluginBase implements Listener{
 		$nbt->Items->setTagType(NBT::TAG_Compound);
 		$tile = Tile::createTile("Chest", $player->getLevel()->getChunk($player->getX() >> 4, $player->getZ() >> 4), $nbt);
 		if($tile instanceof Chest) {
-			$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+			$config = new Config($this->getDataFolder() . Variable::SHOP, Config::YAML);
 			$all = $config->get("Shop");
 			$tile->getInventory()->clearAll();
 			for ($i = 0; $i < count($all); $i+=2) {
@@ -144,7 +144,7 @@ class Main extends PluginBase implements Listener{
 	public function onInvClose(\pocketmine\event\inventory\InventoryCloseEvent $event){
 		$inventory = $event->getInventory();
 		if ($inventory instanceof ChestInventory) {
-			$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+			$config = new Config($this->getDataFolder() . Variable::SHOP, Config::YAML);
             		$all = $config->get("Shop");
             		$realChest = $inventory->getHolder();
             		$first = $all[0];
@@ -174,7 +174,7 @@ class Main extends PluginBase implements Listener{
 			}
 		}
 		if ($player != null && $chestBlock != null && isset($transaction)) {
-			$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+			$config = new Config($this->getDataFolder() . Variable::SHOP, Config::YAML);
                 	$all = $config->get("Shop");
                 	$chestTile = $player->getLevel()->getTile($chestBlock);
                 	if ($chestTile instanceof Chest) {
@@ -202,7 +202,7 @@ class Main extends PluginBase implements Listener{
 				if($this->isShopping[$player->getName()] == Variable::TRUE){
 					if ($TargetItemID == Item::WOOL && $TargetItemDamage == 14) {
 						$event->setCancelled(true);
-						$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+						$config = new Config($this->getDataFolder() . Variable::SHOP, Config::YAML);
                             			$all = $config->get("Shop");
                             			$chestTile->getInventory()->clearAll();
                             			for ($i = 0; $i < count($all); $i = $i + 2) {
@@ -236,7 +236,7 @@ class Main extends PluginBase implements Listener{
 					}
 					if ($secondslot != 384) {
 						$event->setCancelled(true);
-						$config = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
+						$config = new Config($this->getDataFolder() . Variable::SHOP, Config::YAML);
 						$all = $config->get("Shop");
 						for ($i = 0; $i < count($all); $i += 2) {
 							if ($TargetItemID == $all[$i]) {
