@@ -21,8 +21,8 @@ class Main extends PluginBase implements Listener{
 	protected $transactionQueue = null;
 	
 	public function onEnable(){
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
-		@mkdir($this->getDataFolder());
+		self::getServer()->getPluginManager()->registerEvents($this, $this);
+		@mkdir(self::getDataFolder());
 		$shop = new Config($this->getDataFolder(). Variable::SHOP, Config::YAML);
 		if ($shop->get("Shop") == null) {
 			$shop->set("Shop", array(
