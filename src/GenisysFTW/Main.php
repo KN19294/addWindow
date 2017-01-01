@@ -280,6 +280,8 @@ class Main extends PluginBase implements Listener{
 				case "shop":
 					$sender->sendMessage(TextFormat::GREEN ."You have launched the Shop UI");
 					self::openShop($sender);
+					else if($sender->getFloorY() <= 5) $sender->sendMessage(TextFormat::RED ."You are too close to the void, the shop UI could not be spawned");
+					self::$isShopping[$sender->getName()] = Variable::FALSE;
 					break;
 			}
 		}
