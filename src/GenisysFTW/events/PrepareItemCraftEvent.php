@@ -21,7 +21,7 @@ class PrepareItemCraftEvent extends InventoryEvent implements Cancellable{
     self::$what = $what;
     self::$view = $view->getViewers();
     self::$repair = $repair;
-    parent::__construct(self::$what, self::$view, self::$repair);
+    parent::__construct(self::$what);
   }
   
   public function getRecipe(){
