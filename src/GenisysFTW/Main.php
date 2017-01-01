@@ -20,6 +20,8 @@ class Main extends PluginBase implements Listener{
 	/** @var SimpleTransactionQueue */
 	protected $transactionQueue = null;
 	
+	public static $instance;
+	
 	public function onEnable(){
 		self::getServer()->getPluginManager()->registerEvents($this, $this);
 		@mkdir(self::getDataFolder());
@@ -74,6 +76,57 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
+	public static function getInstance(){
+        return self::$instance;
+    }
+	
+	public function onTransaction(InventoryTransactionEvent $ev){
+        $failed = [];
+        foreach(Server::getInstance()->getOnlinePlayers() as $player) {
+            while (!$ev->getQueue()->getTransactions()->isEmpty()) {
+                $transaction = $ev->getQueue()->getTransactions()->dequeue();
+                if ($transaction->getInventory() instanceof ContainerInventory || $transaction->getInventory() instanceof PlayerInventory) {
+                    $player->getServer()->getPluginManager()->callEvent($event = new InventoryClickEvent($transaction->getInventory(), $player, $transaction->getSlot(), $transaction->getInventory()->getItem($transaction->getSlot())));
+                    if ($event->isCancelled()) {
+                        $ev->setCancelled(true);
+                    }
+                    if ($ev->isCancelled()) {
+                        $transaction->sendSlotUpdate($player);
+                        continue;
+                    } elseif (!$transaction->execute($player)) {
+                        $transaction->addFailure();
+                        if ($transaction->getFailures() >= SimpleTransactionQueue::DEFAULT_ALLOWED_RETRIES) {
+                            $failed[] = $transaction;
+                        } else {
+                            $transaction->sendSlotUpdate($player);
+                            $ev->getQueue()->getTransactions()->enqueue($transaction);
+                        }
+                        continue;
+                    }
+                   
+                    $transaction->setSuccess();
+                    $transaction->sendSlotUpdate($player);
+
+                    foreach ($failed as $f) {
+                        $f->sendSlotUpdate($player);
+                    }
+                }
+            }
+        }
+    }
+	
+    public function onClick(\GenisysFTW\events\InventoryClickEvent $event){
+        $player = $event->getWhoClicked();
+        $inventory = $event->getInventory();
+        if(!$inventory instanceof ChestInventory){
+            return;
+        }
+        if($event->getSlot() == 1 || $event->getItem()->getId() == 1){
+            $event->setCancelled(true);
+            $player->sendPopup("You just selected an item");
+        }
+    }
+	
 	/*
 	*
 	* Thanks @Muqsit and @dktapps.
@@ -90,7 +143,7 @@ class Main extends PluginBase implements Listener{
 	}
 	
 	public static function sendChestInventory(Player $player){
-		$block = Block::get(54);
+		$block = Block::get(Block::CHEST);
 		$player->getLevel()->setBlock(new Vector3($player->x, $player->y - 2, $player->z), $block, true, true);
     		$nbt = new CompoundTag("", [
 			new ListTag("Items", []),
@@ -104,11 +157,11 @@ class Main extends PluginBase implements Listener{
 		$player->addWindow($tile->getInventory());
 	}
 	
-	public static function onTrans(\pocketmine\inventory\SimpleTransactionQueue $ev){
+	public static function onTrans(\pocketmine\event\inventory\InventoryTransactionEvent $ev){
 		$chest = null;
     		$player = null;
-    		$trans = $ev->getTransactions();
-    		$int = $ev->getTransatctions()->getInventories();
+    		$trans = $ev->getTransaction()->getTransactions();
+    		$int = $trans->getInventories();
      		foreach($trans as $t){
 			foreach($int as $inst){
 				$inst = $inst->getHolder();
@@ -167,9 +220,9 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
-	public static function onTransaction(\pocketmine\inventory\SimpleTransactionQueue $event) {
-		$trans = $event->getTransactions();
-        	$inv = $event->getTransactions()->getInventories();
+	public static function onTransaction(\pocketmine\event\inventory\InventoryTransactionEvent $event) {
+		$trans = $event->getTransaction()->getTransactions();
+        	$inv = $trans->getInventories();
         	$player = null;
         	$chestBlock = null;
         	foreach ($trans as $t) {
